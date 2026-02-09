@@ -1,1 +1,26 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm test -- --coverage
+
+      - run: docker build -t api:${{ github.sha }} .
+
+      - run: docker run -d -p 3000:3000 api:${{ github.sha }}
+
+      - run: curl -fsS http://localhost:3000/health
 
